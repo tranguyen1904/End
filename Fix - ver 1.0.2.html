@@ -73,8 +73,8 @@
 		    var ballVertexIndexBuffer;
 		    var ballTexture;
 		    var radius_ball = 0.8;
-		    var numcubes=20;
-		    var height_cube = 0.4;
+		    var numcubes=15;
+		    var height_cube = 0.3;
 		    var radius_cubes = 7;
 		    function initGL(canvas) {
 		        try {
@@ -487,9 +487,11 @@
 			}
 		//
 		    var check_key=0;
+		    var ySpeed=0;
+		    var fail=0;
 		    function drawball() {
 		    	mvPushMatrix();       
-		        mat4.translate(mvMatrix, [xSpeed, 0, zSpeed]);
+		        mat4.translate(mvMatrix, [xSpeed, ySpeed, zSpeed]);
 		        if (check_key==2) mat4.rotate(mvMatrix, zSpeed, [1, 0, 0]);
 		        if (check_key==1) mat4.rotate(mvMatrix, xSpeed, [0, 0, -1]);
 
@@ -541,7 +543,7 @@
 		    }
 		    function tick() {
 		        if (play==1) requestAnimFrame(tick);
-		        handleKeys();
+		        if(fail!=1) handleKeys();
 		        animate();
 		        drawSence();
 		        check();
@@ -556,6 +558,7 @@
 				var timeNow = new Date().getTime();
 				var elapsed = timeNow - lastTime;
 	        	yRotage_cube += (90 * elapsed) / 1000.0;
+	        	if (fail==1) ySpeed -= 0.25;
 				lastTime = timeNow;
 			}
 		//matrix function
@@ -649,7 +652,8 @@
 				if (xSpeed*xSpeed >= 100 || zSpeed*zSpeed >= 100){
 					text.font = "bold 50px Arial";
 					text.fillText('Fail!',text.width/2-30,text.height/2);
-					play=0;
+					//play=0;
+					fail=1;
 				}
 		    }
 		    var score=0;
@@ -658,6 +662,8 @@
 					if (cubes[i].active!=0 && ((xSpeed >= cubes[i].x-1.5 && xSpeed <= cubes[i].x+1.5 )&& (zSpeed >= cubes[i].z-1.5 && zSpeed <= cubes[i].z+1.5 ))) {
 						cubes[i].active=0;
 						score ++;
+						var audio = new Audio('ding.mp3');
+						audio.play();
 					}
 				}
 				//if (xSpeed*xSpeed >= 100) xSpeed=-xSpeed;
@@ -669,22 +675,28 @@
 		        initGL(canvas);
 		        var canvas = document.getElementById("text");
 		        initText(canvas);
+		        var lol = new Audio('LOL.mp3');
+		        lol.loop = true;
+		        lol.play();
 		        initShaders();
 		        initBuffers();
 		        initTexture();
 		        initcubes();
 		        setlight();
-		        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		        //gl.clearColor(0.0, 0.0, 0.0, 1.0);
 		        gl.enable(gl.DEPTH_TEST);
 		        document.onkeydown = handleKeyDown;
         		document.onkeyup = handleKeyUp;
 		        tick();
+		        
+
 		    }
 		</script>
 	</head>
 	<body onload="webGLStart();">
 	    <canvas id="webgl" style="position: absolute; z-index: 0" width="600" height="500"></canvas>
 	    <canvas id="text" style="position: absolute; z-index: 0" width="600" height="500"></canvas>
+	    <img src='img/galaxy.jpg' height="500" width="600">
 	</body>
 
 </html>
